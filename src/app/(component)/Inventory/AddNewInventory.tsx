@@ -69,6 +69,7 @@ const AddNewInventory: React.FC<AddNewInventoryProps> = ({ categories,businessId
       fields: [], // Initialize fields as an empty array
     },
   });
+  type InventoryFormValues = z.infer<typeof inventorySchema>;
   const { control, watch, handleSubmit, getValues } = form;
   const { fields, replace } = useFieldArray({
     control,

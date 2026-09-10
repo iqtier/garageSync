@@ -1,7 +1,9 @@
-import { JsonValue } from "@prisma/client/runtime/library";
+// JsonValue is just a native JSON type - no need to import from Prisma internals
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 interface Business {
   id: string;
