@@ -86,7 +86,11 @@ export default function BusinessSetup() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       startTransition(async () => {
-        const result = await createBusinessDetails(values, user?.id as string);
+        const submitData = {
+          ...values,
+          location: [values.location[0], values.location[1] || ""] as [string, string],
+        };
+        const result = await createBusinessDetails(submitData, user?.id as string);
         if (result?.status === "success") {
           toast.success(`Business setup completed`);
           
