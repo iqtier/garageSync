@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "Inventory" ALTER COLUMN "quantityOnHand" SET DEFAULT 0,
+ALTER COLUMN "quantityOnHand" SET DATA TYPE DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "InventoryTransaction" ALTER COLUMN "quantity" SET DATA TYPE DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "UsedInventory" ALTER COLUMN "quantity" SET DATA TYPE DOUBLE PRECISION;

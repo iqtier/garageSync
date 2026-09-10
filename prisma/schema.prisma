@@ -1,0 +1,242 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+ 
+  //directUrl = env("DIRECT_URL")
+}
+
+model Business {
+  id         String      @id @default(cuid())
+  name       String
+  phone      String
+  email      String
+  address    Json
+  logo       Bytes
+  taxRate    Float       @default(0.15)
+  created_at DateTime    @default(now())
+  users      User[]
+  bookings   Booking[]
+  services   Service[]
+  invenories Inventory[]
+  customers  Customer[]
+  Category   Category[]
+  Supplier   Supplier[]
+}
+
+model User {
+  id               String              @id @default(cuid())
+  name             String
+  email            String              @unique
+  password         String
+  role             String
+  pin              String             @unique
+  created_at       DateTime            @default(now())
+  bookings         BookingTechnician[]
+  ClockInOut       ClockInOut[]
+  EmployeeSchedule EmployeeSchedule[]
+  business         Business?           @relation(fields: [business_Id], references: [id])
+  business_Id      String?
+}
+
+model ClockInOut {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  clockIn     DateTime
+  clockOut    DateTime?
+  hoursWorked Float @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model EmployeeSchedule {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime
+  status    String // e.g., "on", "off", "sick", "vacation", "available for on call"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+model ServiceFields {
+  id        Int     @id @default(autoincrement())
+  serviceId Int
+  name      String
+  value     String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id                      String    @id @default(cuid())
+  name                    String
+  email                   String    @unique
+  phone                   String    @unique
+  taxExempt               Boolean   @default(false)
+  discounted              Boolean   @default(false)
+  discountRate            Float     @default(0)
+  discountType            String?
+  labourRateOverride      Float     @default(0)
+  inventoryMarkupOverride Int       @default(0)
+  isChargeAccount         Boolean   @default(false)
+  vehicles                Vehicle[]
+  bookings                Booking[]
+  business                Business  @relation(fields: [business_Id], references: [id])
+  business_Id             String
+}
+
+model Vehicle {
+  id         Int       @id @default(autoincrement())
+  make       String
+  model      String
+  year       String
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  Booking    Booking[]
+}
+
+model Booking {
+  id             Int                 @id @default(autoincrement())
+  date           DateTime
+  start          DateTime?
+  finish         DateTime?
+  time           String
+  ramp           String
+  vehicle_id     Int
+  booking_type   String
+  status         String              @default("pending")
+  note           String              @default("")
+  payment_status String              @default("unpaid")
+  payment_method String              @default("cash")
+  customerid     String
+  services       ServiceIdQty[]
+  technicians    BookingTechnician[]
+  vehicle        Vehicle            @relation(fields: [vehicle_id], references: [id])
+  customer       Customer            @relation(fields: [customerid], references: [id], onDelete: Cascade)
+  UsedInventory  UsedInventory[]
+  business       Business            @relation(fields: [business_Id], references: [id])
+  business_Id    String
+}
+
+model BookingTechnician {
+  id           Int     @id @default(autoincrement())
+  bookingId    Int
+  technicianId String
+  booking      Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  technician   User    @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, technicianId])
+}
+
+model ServiceIdQty {
+  id        String  @id @default(uuid())
+  bookingId Int
+  qty       String
+  serviceId Int
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model Service {
+  id           Int             @id @default(autoincrement())
+  createdAt    DateTime        @default(now())
+  name         String
+  price        Float
+  fields       ServiceFields[]
+  ServiceIdQty ServiceIdQty[]
+  business     Business        @relation(fields: [business_Id], references: [id])
+  business_Id  String
+}
+
+model Inventory {
+  id                 Int                    @id @default(autoincrement())
+  sku                String?                @unique
+  name               String
+  brand              String?
+  category           Category               @relation(fields: [categoryId], references: [id])
+  categoryId         Int
+  quantityOnHand     Float                  @default(0)
+  unitCost           Float
+  retailPrice        Float
+  measure_of_unit    String
+  reorderPoint       Int?
+  location           String? // e.g., "Shelf A, Bin 3"
+  compatibleVehicles String // Store vehicle compatibility info (make, model, year) as JSON
+  transactions       InventoryTransaction[]
+  InventoryFields    InventoryFields[]
+  UsedInventory      UsedInventory[]
+  business           Business               @relation(fields: [business_Id], references: [id])
+  business_Id        String
+}
+
+model InventoryFields {
+  id          Int       @id @default(autoincrement())
+  name        String
+  value       String
+  inventoryId Int
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id                 Int         @id @default(autoincrement())
+  name               String      @unique
+  description        String
+  fields             String[]
+  compatibleVehicles Boolean     @default(false)
+  inventory          Inventory[]
+  business           Business    @relation(fields: [business_Id], references: [id], onDelete: Cascade)
+  business_Id        String
+}
+
+model Supplier {
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  contact              Contact                @relation(fields: [contactId], references: [id])
+  contactId            Int                    @unique
+  InventoryTransaction InventoryTransaction[]
+  business             Business               @relation(fields: [business_Id], references: [id])
+  business_Id          String
+}
+
+model Contact {
+  id       Int       @id @default(autoincrement())
+  phone    String
+  email    String
+  address  String
+  supplier Supplier?
+}
+
+model InventoryTransaction {
+  id              Int       @id @default(autoincrement())
+  date            DateTime  @default(now())
+  supplier        Supplier  @relation(fields: [supplierId], references: [id])
+  supplierId      Int
+  type            String // e.g., "receipt", "sale", "adjustment"
+  inventoryId     Int
+  inventory       Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  quantity        Float
+  referenceNumber String? // Invoice/Work Order number
+  cost            Float? // Cost at the time of the transaction
+  notes           String?
+}
+
+model UsedInventory {
+  id                  Int       @id @default(autoincrement())
+  inventoryId         Int
+  inventory           Inventory @relation(fields: [inventoryId], references: [id])
+  bookingId           Int
+  booking             Booking   @relation(fields: [bookingId], references: [id])
+  quantity            Float
+  transactionType     String
+  includedWithService Boolean
+}

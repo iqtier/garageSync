@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Customer" ADD COLUMN     "discountRate" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "discountType" TEXT,
+ADD COLUMN     "discounted" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "inventoryMarkupOverride" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "isChargeAccount" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "labourRateOverride" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "taxExempt" BOOLEAN NOT NULL DEFAULT false;
