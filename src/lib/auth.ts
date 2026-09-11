@@ -53,13 +53,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // **🔹 Force-check user existence on every request**
       if (token?.id) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/check-user?id=${token.id}`);
-        const data = await response.json();
-        const userExists = data.exists;
-        if (!userExists) {
-          return null; // Log out the user
+        try {
+          const dbUser = await getUserById(token.id as string);
+          if (!dbUser) {
+            return null; // Log out the user
+          }
+          return {
+            ...token,
+            userExists: true,
+            business_Id: dbUser.business_Id,
+            role: dbUser.role,
+          };
+        } catch (error) {
+          console.error("Error verifying user in JWT callback:", error);
+          return token;
         }
-        return { ...token, userExists };
       }
 
       return token;

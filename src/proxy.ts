@@ -6,7 +6,26 @@ import { User } from "./types/type";
 
 export default async function proxy(req: NextRequest) {
   const { nextUrl } = req;
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const isHttps =
+    req.url.startsWith("https://") ||
+    req.headers.get("x-forwarded-proto") === "https" ||
+    process.env.NODE_ENV === "production";
+
+  let token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    secureCookie: isHttps,
+  });
+
+  if (!token && isHttps) {
+    // Fallback in case cookies were written without __Secure- prefix
+    token = await getToken({
+      req,
+      secret: process.env.AUTH_SECRET,
+      secureCookie: false,
+    });
+  }
+
   const isLoggedIn = !!token;
   const currentUser = token as any;
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);

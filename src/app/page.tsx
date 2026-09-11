@@ -32,7 +32,7 @@ export default async function Home() {
   if (businessId) {
     return redirect(`/home`);
   } else {
-    return redirect("/setup-businesss");
+    return redirect("/setup-business");
   }
 }
 
