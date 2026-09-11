@@ -62,14 +62,15 @@ const AddNewInventory: React.FC<AddNewInventoryProps> = ({ categories,businessId
   const router = useRouter();
   const {user} = useUserStore();
 
+
+  type InventoryFormValues = z.infer<typeof inventorySchema>;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const form = useForm<z.infer<typeof inventorySchema>>({
+  const form = useForm<InventoryFormValues>({
     resolver: zodResolver(inventorySchema),
     defaultValues: {
       fields: [], // Initialize fields as an empty array
     },
   });
-  type InventoryFormValues = z.infer<typeof inventorySchema>;
   const { control, watch, handleSubmit, getValues } = form;
   const { fields, replace } = useFieldArray({
     control,
