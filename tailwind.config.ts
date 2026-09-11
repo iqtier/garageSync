@@ -1,5 +1,5 @@
+import tailwindcssAnimate from "tailwindcss-animate";
 import {heroui} from '@heroui/theme';
-/* eslint-disable @typescript-eslint/no-require-imports */
 import type { Config } from "tailwindcss";
 
 export default {
