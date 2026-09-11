@@ -61,8 +61,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return {
             ...token,
             userExists: true,
-            business_Id: dbUser.business_Id,
-            role: dbUser.role,
+            business_Id: dbUser?.business_Id ?? null,
+            role: dbUser?.role ?? null,
           };
         } catch (error) {
           console.error("Error verifying user in JWT callback:", error);
