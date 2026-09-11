@@ -42,8 +42,11 @@ export function LoginForm() {
     },
   });
 
- 
-  async function onSubmit(values: z.infer<typeof LogInSchema>) {
+  const fillCredentials = (email: string, pass: string) => {
+    form.setValue("email", email, { shouldValidate: true });
+    form.setValue("password", pass, { shouldValidate: true });
+  };
+ async function onSubmit(values: z.infer<typeof LogInSchema>) {
     startTransition(async () => {
       const result = await signInUser(values);
       console.log(result);
@@ -131,6 +134,55 @@ export function LoginForm() {
           >
             Register
           </Link>
+        </div>
+
+        <div className="mt-2 pt-4 border-t border-gray-200 dark:border-gray-700/80">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2.5 text-center">
+            Demo Credentials (Click to autofill)
+          </p>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => fillCredentials("john@northernmotors.ca", "password123")}
+              className="w-full p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600/60 text-left transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-xs text-emerald-600 dark:text-emerald-400">
+                  Admin Access
+                </span>
+                <span className="text-[11px] text-gray-400 group-hover:text-emerald-500 transition-colors">
+                  Fill ↵
+                </span>
+              </div>
+              <div className="text-xs text-gray-700 dark:text-gray-200 font-mono mt-0.5">
+                john@northernmotors.ca
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-mono">
+                pass: password123
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fillCredentials("mike@northernmotors.ca", "password123")}
+              className="w-full p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600/60 text-left transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-xs text-blue-600 dark:text-blue-400">
+                  Technician Access
+                </span>
+                <span className="text-[11px] text-gray-400 group-hover:text-blue-500 transition-colors">
+                  Fill ↵
+                </span>
+              </div>
+              <div className="text-xs text-gray-700 dark:text-gray-200 font-mono mt-0.5">
+                mike@northernmotors.ca
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-mono">
+                pass: password123
+              </div>
+            </button>
+          </div>
         </div>
       </CardContent>
     </Card>
